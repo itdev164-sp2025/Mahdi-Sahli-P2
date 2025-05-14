@@ -9,11 +9,32 @@ const Dashboard = () => {
     category: "",
     date: "",
   });
+  const [editIndex, setEditIndex] = useState(null); // Track the transaction being edited
 
   const handleAddTransaction = (e) => {
     e.preventDefault();
-    setTransactions([...transactions, newTransaction]);
+    if (editIndex !== null) {
+      // Update existing transaction
+      const updatedTransactions = transactions.map((transaction, index) =>
+        index === editIndex ? newTransaction : transaction
+      );
+      setTransactions(updatedTransactions);
+      setEditIndex(null);
+    } else {
+      // Add new transaction
+      setTransactions([...transactions, newTransaction]);
+    }
     setNewTransaction({ type: "income", amount: "", category: "", date: "" });
+  };
+
+  const handleEditTransaction = (index) => {
+    setNewTransaction(transactions[index]);
+    setEditIndex(index);
+  };
+
+  const handleDeleteTransaction = (index) => {
+    const updatedTransactions = transactions.filter((_, i) => i !== index);
+    setTransactions(updatedTransactions);
   };
 
   const calculateTotal = (type) =>
@@ -36,7 +57,7 @@ const Dashboard = () => {
       </div>
 
       <div className="transaction-form">
-        <h3>Add Transaction</h3>
+        <h3>{editIndex !== null ? "Edit Transaction" : "Add Transaction"}</h3>
         <form onSubmit={handleAddTransaction}>
           <div className="form-group">
             <label>Type:</label>
@@ -95,7 +116,7 @@ const Dashboard = () => {
             />
           </div>
           <button className="submit-btn" type="submit">
-            Add Transaction
+            {editIndex !== null ? "Update Transaction" : "Add Transaction"}
           </button>
         </form>
       </div>
@@ -110,6 +131,18 @@ const Dashboard = () => {
               <li key={index} className={`transaction-item ${transaction.type}`}>
                 <span>{transaction.date}</span>: {transaction.type} of $
                 {transaction.amount} ({transaction.category})
+                <button
+                  className="edit-btn"
+                  onClick={() => handleEditTransaction(index)}
+                >
+                  Edit
+                </button>
+                <button
+                  className="delete-btn"
+                  onClick={() => handleDeleteTransaction(index)}
+                >
+                  Delete
+                </button>
               </li>
             ))}
           </ul>
@@ -120,4 +153,5 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
 
